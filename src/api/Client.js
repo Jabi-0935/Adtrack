@@ -1,7 +1,8 @@
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: API_URL,
   headers: {
     "Content-Type": "multipart/form-data",
   },
