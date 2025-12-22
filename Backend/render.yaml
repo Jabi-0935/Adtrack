@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: dementia-fastapi
+    name: dementia-backend
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: |
+      pip install -r Backend/requirements.txt
+      mkdir -p Backend
+      curl -L "https://drive.google.com/uc?export=download&id=1KZvendw8dVApmymgSSCSjPSrgZuDwJQP" -o Backend/best_alzheimer_model.pth
+    startCommand: uvicorn Backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: TRANSFORMERS_CACHE
         value: /opt/render/project/.cache
