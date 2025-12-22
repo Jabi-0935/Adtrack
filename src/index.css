@@ -1,1 +1,22 @@
 @import "tailwindcss";
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+/* Custom Scrollbar for the Transcript Viewer */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-slate-100 rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
+
+/* Text Selection Color */
+::selection {
+  @apply bg-indigo-100 text-indigo-900;
+}

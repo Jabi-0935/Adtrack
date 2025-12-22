@@ -17,10 +17,16 @@ export const PredictionProvider = ({ children }) => {
     formData.append("file", file);
 
     try {
-      const data = await apiClient.post("/predict", formData);
+      // Hitting the specific endpoint you defined
+      const data = await apiClient.post("/predict/cha", formData);
+      
+      // Artificial delay (800ms) to let animations play out smoothly if the API is too fast
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       setResult(data);
       return data;
     } catch (err) {
+      console.error(err);
       setError(err);
       throw err;
     } finally {

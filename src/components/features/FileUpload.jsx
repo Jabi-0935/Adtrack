@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { UploadCloud, Loader2, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { UploadCloud, Loader2, FileText, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePrediction } from "../../context/PredictionContext";
 import DisclaimerModal from "../ui/DisclaimerModal";
+import AnalysisResult from "./AnalysisResult"; // Import the new component
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -53,15 +54,16 @@ export default function FileUpload() {
         onCancel={handleCancelUpload} 
       />
 
-      <div className="w-full max-w-2xl mx-auto">
+      <div className="w-full flex justify-center">
         <AnimatePresence mode="wait">
           {!result ? (
+            // UPLOAD STATE
             <motion.div
               key="upload"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
+              className="w-full max-w-2xl space-y-4"
             >
               <div
                 {...getRootProps()}
@@ -92,11 +94,11 @@ export default function FileUpload() {
                   
                   <div className="space-y-2">
                     <p className="text-xl font-bold text-slate-800">
-                      {loading ? "Analyzing Biomarkers..." : "Upload Clinical Transcript"}
+                      {loading ? "Processing Transcript..." : "Upload Clinical Transcript"}
                     </p>
                     <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
                       {loading 
-                        ? "Please wait while our models process the linguistic features." 
+                        ? "Extracting linguistic features and attention maps." 
                         : "Drag & drop your .cha file here, or click to browse secure directory"}
                     </p>
                   </div>
@@ -125,52 +127,8 @@ export default function FileUpload() {
               )}
             </motion.div>
           ) : (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden"
-            >
-              <div className="relative p-8 flex flex-col items-center text-center space-y-8">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600" />
-                
-                <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center shadow-inner">
-                  <CheckCircle2 className="w-10 h-10" />
-                </div>
-                
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900">Analysis Complete</h3>
-                  <p className="text-slate-500 mt-2">Data successfully processed by the inference engine.</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-px bg-slate-200 rounded-2xl overflow-hidden w-full max-w-md border border-slate-200 shadow-sm">
-                  <div className="bg-slate-50 p-6 flex flex-col items-center justify-center">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prediction</p>
-                    <p className={cn(
-                      "text-xl font-extrabold",
-                      result.prediction === "Dementia" ? "text-red-600" : "text-slate-900"
-                    )}>
-                      {result.prediction}
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 p-6 flex flex-col items-center justify-center">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Confidence</p>
-                    <p className="text-xl font-extrabold text-slate-900">
-                      {(result.probability * 100).toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-full max-w-md pt-2">
-                  <button
-                    onClick={resetPrediction}
-                    className="w-full bg-slate-900 text-white font-medium py-3.5 px-6 rounded-xl hover:bg-slate-800 transition-all hover:shadow-lg hover:shadow-slate-900/20 active:scale-[0.99]"
-                  >
-                    Analyze Another Patient
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+            // RESULT STATE (New Component)
+            <AnalysisResult result={result} onReset={resetPrediction} />
           )}
         </AnimatePresence>
       </div>

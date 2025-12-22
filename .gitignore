@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+Backend\best_alzheimer_model.pth
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -30,5 +32,6 @@ dist-ssr
 # Environment files
 .env.local
 .env.production
+
 
 // ...existing code...
