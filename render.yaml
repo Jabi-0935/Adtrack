@@ -4,13 +4,13 @@ services:
     runtime: python
     plan: free
     buildCommand: |
-      pip install -r requirements.txt
+      pip install -r Backend/requirements.txt
       mkdir -p Backend
       FILEID="YOUR_FILE_ID"
       curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${1KZvendw8dVApmymgSSCSjPSrgZuDwJQP}" > /dev/null
       CONFIRM=$(sed -n 's/.*confirm=\([0-9A-Za-z_]*\).*/\1/p' ./cookie)
       curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=${CONFIRM}&id=${1KZvendw8dVApmymgSSCSjPSrgZuDwJQP}" -o Backend/best_alzheimer_model.pth
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn Backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: TRANSFORMERS_CACHE
         value: /opt/render/project/.cache
