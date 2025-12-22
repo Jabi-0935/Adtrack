@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: dementia-fastapi
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TRANSFORMERS_CACHE
+        value: /opt/render/project/.cache
