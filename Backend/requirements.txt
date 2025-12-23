@@ -6,3 +6,4 @@ transformers
 numpy
 regex
 requests
+python-dotenv

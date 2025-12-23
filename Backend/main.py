@@ -19,7 +19,7 @@ CONFIG = {
     'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     'threshold': 0.20,
     # PASTE YOUR COPIED HUGGING FACE LINK BELOW
-    'model_url': "https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/best_alzheimer_model.pth"
+    'model_url': os.getenv('MODEL_URL')
 }
 
 ml_components = {}
