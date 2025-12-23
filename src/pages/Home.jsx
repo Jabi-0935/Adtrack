@@ -7,7 +7,7 @@ export default function Home() {
   const { result, resetPrediction } = usePrediction();
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center">
       <AnimatePresence mode="wait">
         {!result ? (
           <motion.div

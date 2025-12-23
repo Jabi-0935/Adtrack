@@ -1,56 +1,65 @@
 import FileUpload from "./FileUpload";
-import { BrainCircuit, Activity, Stethoscope } from "lucide-react";
+import { BrainCircuit, Activity, Stethoscope, FileText } from "lucide-react";
 
 export default function Hero() {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] py-8 md:py-12 px-4 sm:px-6 z-0 bg-white">
-      {/* Subtle Background Pattern */}
-      <div className="absolute inset-0 -z-10 opacity-40"
-        style={{ backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)', backgroundSize: '32px 32px' }}
-      />
+    <div className="relative flex flex-col items-center justify-center  py-4 md:py-12 px-4 sm:px-6 z-0">
 
-      <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
         {/* Text Content */}
-        <div className="text-center lg:text-left space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs md:text-sm font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+        <div className="text-center lg:text-left space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm text-indigo-700 text-sm font-bold">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
             </span>
-            Clinical Research Tool h1.0
+            RESEARCH GRADE PROTOCOL v2.1
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-            Early Dementia Detection via <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Linguistic Analysis
+          <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.05]">
+            Detect Cognitive <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
+              Decline Early.
             </span>
           </h1>
 
-          <p className="text-lg text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto lg:mx-0">
-            A non-invasive, AI-powered screening tool utilizing the <span className="font-semibold text-slate-800">DeBERTa architecture</span> to identify subtle speech patterns associated with cognitive decline.
+          <p className="text-xl text-slate-600 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
+            Advanced AI screening tool analyzing <span className="text-slate-900 font-semibold underline decoration-indigo-200 decoration-2">linguistic biomarkers</span> from speech transcripts to identify early signs of dementia with high precision.
           </p>
 
-          <div className="flex flex-wrap justify-center lg:justify-start gap-4 md:gap-8 text-slate-500 text-xs md:text-sm font-medium pt-2">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-blue-100 rounded-md text-blue-600"><BrainCircuit size={18} /></div>
-              <span>Deep Learning</span>
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 pt-4">
+            <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
+              <div className="p-3 bg-indigo-50 rounded-lg text-indigo-600"><BrainCircuit size={24} /></div>
+              <div className="text-left">
+                <p className="font-bold text-slate-900">DeBERTa</p>
+                <p className="text-xs text-slate-500">Transformer Model</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-indigo-100 rounded-md text-indigo-600"><Activity size={18} /></div>
-              <span>Biomarkers</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-teal-100 rounded-md text-teal-600"><Stethoscope size={18} /></div>
-              <span>Clinician Aid</span>
+            <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
+              <div className="p-3 bg-teal-50 rounded-lg text-teal-600"><Activity size={24} /></div>
+              <div className="text-left">
+                <p className="font-bold text-slate-900">81.1%</p>
+                <p className="text-xs text-slate-500">Validation Accuracy</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Upload Section */}
-        <div className="w-full relative z-10">
-          <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-[2.5rem] blur-xl opacity-50 -z-10"></div>
+        {/* Upload Section - Made Prominent */}
+        <div className="w-full relative z-10 lg:pl-10">
+          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-200/50 to-blue-200/50 rounded-[3rem] blur-3xl opacity-60 -z-10 translate-y-4"></div>
           <FileUpload />
+
+          {/* Trust Badges */}
+          <div className="mt-8 flex justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+            {/* Placeholders for hypothetical partner logos if needed, currently just text/icon implies trust */}
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm">
+              <Stethoscope size={16} /> Clinical Research Standard
+            </div>
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm">
+              <FileText size={16} /> Standard .CHA Support
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -22,6 +22,7 @@
     "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.9.6",
     "recharts": "^3.6.0",
+    "scale": "^0.0.7",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
