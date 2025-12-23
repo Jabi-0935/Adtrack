@@ -7,6 +7,7 @@ from transformers import AutoTokenizer
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import requests  # <--- Added this
 
 from model_arch import ResearchHybridModel
 from preprocessing import ChaParser
@@ -16,7 +17,9 @@ CONFIG = {
     'max_seq_len': 64,
     'max_word_len': 40,
     'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-    'threshold': 0.20
+    'threshold': 0.20,
+    # PASTE YOUR COPIED HUGGING FACE LINK BELOW
+    'model_url': "https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/best_alzheimer_model.pth"
 }
 
 ml_components = {}
@@ -26,8 +29,27 @@ async def lifespan(app: FastAPI):
     print("Loading Model and Tokenizer...")
     ml_components['tokenizer'] = AutoTokenizer.from_pretrained(CONFIG['model_name'])
     
+    # --- MODEL DOWNLOAD LOGIC START ---
+    model_path = "best_alzheimer_model.pth"
+    
+    if not os.path.exists(model_path):
+        print(f"Model file not found. Downloading from Hugging Face...")
+        try:
+            response = requests.get(CONFIG['model_url'], stream=True)
+            response.raise_for_status()
+            with open(model_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("Download complete.")
+        except Exception as e:
+            print(f"Error downloading model: {e}")
+            raise RuntimeError("Failed to download model file")
+    # --- MODEL DOWNLOAD LOGIC END ---
+
     model = ResearchHybridModel(model_name=CONFIG['model_name'])
-    state_dict = torch.load("best_alzheimer_model.pth", map_location=CONFIG['device'])
+    
+    # Load state dict
+    state_dict = torch.load(model_path, map_location=CONFIG['device'])
     
     if list(state_dict.keys())[0].startswith('module.'):
         state_dict = {k[7:]: v for k, v in state_dict.items()}
@@ -45,10 +67,10 @@ app = FastAPI(lifespan=lifespan)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://adtrack.onrender.com"],  # Your frontend URL
+    allow_origins=["https://adtrack.onrender.com"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class SentenceAttention(BaseModel):
