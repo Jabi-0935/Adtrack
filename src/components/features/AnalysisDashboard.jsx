@@ -1,94 +1,118 @@
 import { motion } from "framer-motion";
-import { Activity, FileText, RefreshCw, Download, BrainCircuit, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Activity, FileText, Download, BrainCircuit, AlertTriangle, CheckCircle2, Share2, Printer } from "lucide-react";
 import HeatmapViewer from "./HeatmapViewer";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 export default function AnalysisDashboard({ result, onReset }) {
   const isDementia = result.is_dementia;
   const confidencePercent = (result.confidence * 100).toFixed(1);
+  const data = [
+    { name: isDementia ? 'Dementia Probability' : 'Healthy Probability', value: result.confidence * 100 },
+    { name: 'Uncertainty', value: 100 - (result.confidence * 100) }
+  ];
+
+  /* Brighter Red/Rose for Dementia, Emerald/Teal for Control */
+  const primaryColor = isDementia ? "#ef4444" : "#10b981";
+  const secondaryColor = "#e2e8f0"; // slate-200
+
+  const downloadReport = () => {
+    window.print();
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-6xl mx-auto space-y-6"
+      className="w-full space-y-6 text-slate-800"
     >
-      {/* 1. The Head-Up Display (HUD) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Card 1: Diagnosis */}
-        <div className={`p-6 rounded-2xl border shadow-sm flex items-center gap-4 ${isDementia ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'}`}>
-          <div className={`p-3 rounded-xl ${isDementia ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
-            {isDementia ? <AlertTriangle size={24} /> : <CheckCircle2 size={24} />}
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider opacity-60">Model Prediction</p>
-            <h2 className={`text-2xl font-bold ${isDementia ? 'text-rose-900' : 'text-emerald-900'}`}>
-              {result.prediction}
-            </h2>
-          </div>
+      {/* Header Actions */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <Activity className="text-blue-600" /> Analysis Report
+          </h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Patient ID: {result.filename} | Protocol: DeBERTa-Hybrid
+          </p>
         </div>
-
-        {/* Card 2: Confidence */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-          <div className="flex justify-between items-end mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Confidence Score</span>
-            <span className="text-2xl font-bold text-slate-900">{confidencePercent}%</span>
-          </div>
-          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${confidencePercent}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className={`h-full ${isDementia ? 'bg-rose-500' : 'bg-emerald-500'}`} 
-            />
-          </div>
-        </div>
-
-        {/* Card 3: Metadata */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center gap-1">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">File Analyzed</p>
-          <div className="flex items-center gap-2 text-slate-700 font-medium truncate">
-            <FileText size={16} />
-            {result.filename}
-          </div>
-          <p className="text-xs text-slate-400 mt-1">Processed via ResearchHybridModel</p>
+        <div className="flex gap-3 w-full md:w-auto">
+          <button
+            onClick={downloadReport}
+            className="flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-sm font-medium shadow-sm transition-all"
+          >
+            <Printer size={16} /> Print Report
+          </button>
+          <button
+            onClick={onReset}
+            className="flex-1 md:flex-none justify-center items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white border border-transparent rounded-lg text-sm font-medium shadow-md shadow-blue-600/10 transition-all"
+          >
+            New Analysis
+          </button>
         </div>
       </div>
 
-      {/* 2. Main Visualization Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
-        {/* Left: Summary & Actions */}
-        <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-12 opacity-5">
-            <BrainCircuit size={300} />
-          </div>
-          
-          <div className="relative z-10 space-y-6">
-            <h3 className="text-xl font-semibold">Clinical Interpretation</h3>
-            <p className="text-slate-300 leading-relaxed">
-              The model analyzed <strong>{result.attention_map.length} sentences</strong>. 
-              {isDementia 
-                ? " Significant linguistic markers associated with cognitive decline were detected in the provided transcript. High attention scores correlate with repetitive phrasing or syntactic simplicity."
-                : " The linguistic patterns align with the healthy control group. The model did not detect significant anomalies in syntax or vocabulary richness."}
-            </p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+        {/* Left Column: Metrics (4/12 columns on desktop) */}
+        <div className="lg:col-span-4 space-y-6 flex flex-col h-full">
+
+          {/* Diagnosis Card - Compact */}
+          <div className="bg-white p-5 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden flex-shrink-0">
+            <h3 className="text-slate-500 uppercase text-xs font-bold tracking-wider mb-4">Diagnostic Assessment</h3>
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`p-3 rounded-xl border ${isDementia ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
+                {isDementia ? <AlertTriangle size={28} /> : <CheckCircle2 size={28} />}
+              </div>
+              <div>
+                <div className={`text-2xl font-bold ${isDementia ? 'text-red-700' : 'text-emerald-700'} tracking-tight leading-none`}>
+                  {result.prediction}
+                </div>
+                <div className="text-slate-500 text-xs mt-1">
+                  Confidence Score: {confidencePercent}%
+                </div>
+              </div>
+            </div>
+
+            <div className="h-40 w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    innerRadius={50}
+                    outerRadius={70}
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    <Cell key="cell-0" fill={primaryColor} />
+                    <Cell key="cell-1" fill={secondaryColor} />
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#1e293b' }}
+                    itemStyle={{ color: '#1e293b' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-3xl font-extrabold text-slate-800">{confidencePercent}%</span>
+              </div>
+            </div>
           </div>
 
-          <div className="relative z-10 space-y-3">
-            <button className="w-full py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl flex items-center justify-center gap-2 transition-all">
-              <Download size={18} />
-              <span>Export Report (PDF)</span>
-            </button>
-            <button 
-              onClick={onReset}
-              className="w-full py-3 px-4 bg-white text-slate-900 hover:bg-slate-100 rounded-xl flex items-center justify-center gap-2 font-semibold transition-all shadow-lg"
-            >
-              <RefreshCw size={18} />
-              <span>Analyze New Patient</span>
-            </button>
+          {/* Interpretation - Flexible height */}
+          <div className="bg-white p-5 rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 flex-grow">
+            <h3 className="text-slate-500 uppercase text-xs font-bold tracking-wider mb-2">Clinical Interpretation</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Based on the analysis of <strong>{result.attention_map.length} sentences</strong>, the model identified {isDementia ? "patterns consistent with cognitive decline" : "no significant indicators of cognitive decline"}.
+              <br /><br />
+              {isDementia
+                ? "Key indicators include reduced lexical diversity, simplified syntactic structures, and specific disfluency markers. The attention map highlights areas of high relevance."
+                : "The transcript demonstrates normal fluency, complex syntactic structures, and appropriate lexical retrieval typical of healthy controls."}
+            </p>
           </div>
         </div>
 
-        {/* Right: The Heatmap (Takes up 2 columns) */}
-        <div className="lg:col-span-2 h-full">
+        {/* Right Column: Heatmap (8/12 columns on desktop) - Full Height */}
+        <div className="lg:col-span-8 h-full min-h-[600px] lg:min-h-0">
           <HeatmapViewer attentionMap={result.attention_map} isDementia={isDementia} />
         </div>
       </div>
