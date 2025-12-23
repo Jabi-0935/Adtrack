@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-multipart
-torch
-transformers
-numpy
-regex
-requests
-python-dotenv
