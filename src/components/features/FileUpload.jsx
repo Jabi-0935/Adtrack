@@ -12,36 +12,35 @@ function cn(...inputs) {
 }
 
 export default function FileUpload() {
-  const { predictDementia, loading, error } = usePrediction();
+  const { predictDementia, loading, error, progress } = usePrediction();
 
-  const [stagedFile, setStagedFile] = useState(null);
+  const [stagedFiles, setStagedFiles] = useState([]);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles?.length > 0) {
-      setStagedFile(acceptedFiles[0]);
+      setStagedFiles(acceptedFiles);
       setShowDisclaimer(true);
     }
   }, []);
 
   const handleConfirmUpload = () => {
-    if (stagedFile) {
-      predictDementia(stagedFile);
+    if (stagedFiles.length > 0) {
+      predictDementia(stagedFiles);
       setShowDisclaimer(false);
-      setStagedFile(null);
+      setStagedFiles([]);
     }
   };
 
   const handleCancelUpload = () => {
-    setStagedFile(null);
+    setStagedFiles([]);
     setShowDisclaimer(false);
   };
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     onDrop,
     accept: { 'text/plain': ['.cha'] },
-    maxFiles: 1,
-    multiple: false,
+    multiple: true,
     disabled: loading
   });
 
@@ -51,7 +50,16 @@ export default function FileUpload() {
         isOpen={showDisclaimer}
         onConfirm={handleConfirmUpload}
         onCancel={handleCancelUpload}
-      />
+        title={stagedFiles.length > 1 ? `Upload ${stagedFiles.length} Transcripts?` : "Upload Clinical Transcript"}
+      >
+        <div className="mb-4 max-h-40 overflow-y-auto bg-slate-50 p-3 rounded-lg border border-slate-100">
+          {stagedFiles.map((f, i) => (
+            <div key={i} className="text-xs text-slate-600 flex items-center gap-2 py-1">
+              <FileText size={12} className="text-blue-500" /> {f.name}
+            </div>
+          ))}
+        </div>
+      </DisclaimerModal>
 
       <div className="w-full bg-white rounded-3xl border border-slate-200/60 p-1 shadow-xl shadow-slate-200/50">
         <div
@@ -67,7 +75,7 @@ export default function FileUpload() {
         >
           <input {...getInputProps()} />
 
-          <div className="flex flex-col items-center space-y-6 text-center p-6 relative z-10">
+          <div className="flex flex-col items-center space-y-6 text-center p-6 relative z-10 w-full">
             <div className={cn(
               "p-6 rounded-2xl shadow-sm transition-all duration-300",
               isDragActive
@@ -81,21 +89,37 @@ export default function FileUpload() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 w-full max-w-xs mx-auto">
               <p className="text-xl font-bold text-slate-800 tracking-tight">
-                {loading ? "Analyzing Transcript..." : "Upload Clinical Transcript"}
+                {loading ? "Analyzing Transcripts..." : "Upload Clinical Transcripts"}
               </p>
-              <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
-                {loading
-                  ? "Extracting linguistic markers..."
-                  : "Drag & drop your .CHA file here to begin analysis"}
-              </p>
+
+              {loading ? (
+                <div className="space-y-2 w-full">
+                  <p className="text-sm text-slate-500">
+                    Processing {progress.current} of {progress.total} transcripts...
+                  </p>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden relative">
+                    <motion.div
+                      className="absolute left-0 top-0 bottom-0 bg-blue-600"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(progress.current / progress.total) * 100}%` }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
+                  Drag & drop your .CHA files here to begin analysis
+                </p>
+              )}
             </div>
 
             {!loading && (
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-xs font-medium">
                 <FileText size={14} />
-                <span>Supports .cha files</span>
+                <span>Supports multiple .cha files</span>
               </div>
             )}
           </div>
@@ -110,7 +134,7 @@ export default function FileUpload() {
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
               <span className="font-semibold block mb-1">Analysis Error</span>
-              {error}
+              {error.message || "An error occurred during analysis"}
             </div>
           </motion.div>
         )}
