@@ -90,6 +90,8 @@ export default function ResultsOverview({ results, onViewDetail, onReset }) {
                                             </span>
                                             <span className="text-slate-300">|</span>
                                             <span className="text-slate-500">Confidence: {confidencePercent}%</span>
+                                            <span className="text-slate-300">|</span>
+                                            <span className="text-slate-400 text-xs uppercase tracking-wide bg-slate-100 px-2 py-0.5 rounded-full">{result.model_used || "Hybrid DeBERTa"}</span>
                                             {result.error && (
                                                 <span className="text-red-500 font-bold ml-2">- Analysis Failed</span>
                                             )}

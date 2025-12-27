@@ -1,14 +1,17 @@
 import { motion } from "framer-motion";
-import { Activity, FileText, Download, BrainCircuit, AlertTriangle, CheckCircle2, Share2, Printer } from "lucide-react";
+import { Activity, Printer, AlertTriangle, CheckCircle2 } from "lucide-react";
 import HeatmapViewer from "./HeatmapViewer";
+import LinguisticFeaturesView from "./LinguisticFeaturesView";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 export default function AnalysisDashboard({ result, onReset }) {
   const isDementia = result.is_dementia;
-  const confidencePercent = (result.confidence * 100).toFixed(1);
+  // Handle case where confidence might be missing or differently named, though context normalizes it.
+  const confidencePercent = result.confidence ? (result.confidence * 100).toFixed(1) : "N/A";
+
   const data = [
-    { name: isDementia ? 'Dementia Probability' : 'Healthy Probability', value: result.confidence * 100 },
-    { name: 'Uncertainty', value: 100 - (result.confidence * 100) }
+    { name: isDementia ? 'Dementia Probability' : 'Healthy Probability', value: result.confidence ? result.confidence * 100 : 0 },
+    { name: 'Uncertainty', value: 100 - (result.confidence ? result.confidence * 100 : 0) }
   ];
 
   /* Brighter Red/Rose for Dementia, Emerald/Teal for Control */
@@ -18,6 +21,17 @@ export default function AnalysisDashboard({ result, onReset }) {
   const downloadReport = () => {
     window.print();
   };
+
+  // Determine which visualizer to use
+  const hasAttentionMap = Array.isArray(result.attention_map);
+  const hasLinguisticFeatures = result.linguistic_features && typeof result.linguistic_features === 'object';
+
+  // Safe sentence count
+  const sentenceCount = hasAttentionMap
+    ? result.attention_map.length
+    : result.metadata?.sentence_count || "multiple";
+
+  const protocolName = result.model_used || "Unknown Protocol";
 
   return (
     <motion.div
@@ -32,7 +46,7 @@ export default function AnalysisDashboard({ result, onReset }) {
             <Activity className="text-blue-600" /> Analysis Report
           </h2>
           <p className="text-slate-500 text-sm mt-1">
-            Patient ID: {result.filename} | Protocol: DeBERTa-Hybrid
+            Patient ID: {result.filename} | Protocol: {protocolName}
           </p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
@@ -64,7 +78,7 @@ export default function AnalysisDashboard({ result, onReset }) {
               </div>
               <div>
                 <div className={`text-2xl font-bold ${isDementia ? 'text-red-700' : 'text-emerald-700'} tracking-tight leading-none`}>
-                  {result.prediction}
+                  {result.prediction || (isDementia ? "Dementia" : "Healthy Control")}
                 </div>
                 <div className="text-slate-500 text-xs mt-1">
                   Confidence Score: {confidencePercent}%
@@ -102,18 +116,30 @@ export default function AnalysisDashboard({ result, onReset }) {
           <div className="bg-white p-5 rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 flex-grow">
             <h3 className="text-slate-500 uppercase text-xs font-bold tracking-wider mb-2">Clinical Interpretation</h3>
             <p className="text-slate-600 text-sm leading-relaxed">
-              Based on the analysis of <strong>{result.attention_map.length} sentences</strong>, the model identified {isDementia ? "patterns consistent with cognitive decline" : "no significant indicators of cognitive decline"}.
+              Based on the analysis of <strong>{sentenceCount} sentences</strong>, the model identified {isDementia ? "patterns consistent with cognitive decline" : "no significant indicators of cognitive decline"}.
               <br /><br />
               {isDementia
-                ? "Key indicators include reduced lexical diversity, simplified syntactic structures, and specific disfluency markers. The attention map highlights areas of high relevance."
-                : "The transcript demonstrates normal fluency, complex syntactic structures, and appropriate lexical retrieval typical of healthy controls."}
+                ? "Key indicators may include reduced lexical diversity, simplified syntactic structures, and specific disfluency markers detected by the AI protocol."
+                : "The transcript demonstrates patterns typical of healthy controls, such as normal fluency and syntactic complexity."}
             </p>
           </div>
         </div>
 
-        {/* Right Column: Heatmap (8/12 columns on desktop) - Full Height */}
+        {/* Right Column: Heatmap/Features (8/12 columns on desktop) - Full Height */}
         <div className="lg:col-span-8 h-full min-h-[600px] lg:min-h-0">
-          <HeatmapViewer attentionMap={result.attention_map} isDementia={isDementia} />
+          {hasAttentionMap ? (
+            <HeatmapViewer attentionMap={result.attention_map} isDementia={isDementia} />
+          ) : hasLinguisticFeatures ? (
+            <LinguisticFeaturesView
+              features={result.linguistic_features}
+              keySegments={result.key_segments}
+              isDementia={isDementia}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400">
+              Visualization not available for this results format.
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

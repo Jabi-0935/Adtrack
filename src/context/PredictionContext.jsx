@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import apiClient from "../api/Client";
 
 const PredictionContext = createContext();
@@ -8,8 +8,25 @@ export const PredictionProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [models, setModels] = useState([]);
 
-  const predictDementia = useCallback(async (files) => {
+  // Fetch available models on mount
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await apiClient.get("/models");
+        // Expecting { models: ["hybrid_deberta", "model_v2"] }
+        if (response.models) {
+          setModels(response.models);
+        }
+      } catch (err) {
+        console.error("Failed to fetch models:", err);
+      }
+    };
+    fetchModels();
+  }, []);
+
+  const predictDementia = useCallback(async (files, modelName) => {
     setLoading(true);
     setError(null);
     setResults([]); // Clear previous results
@@ -18,33 +35,54 @@ export const PredictionProvider = ({ children }) => {
     const fileList = Array.isArray(files) ? files : [files];
     setProgress({ current: 0, total: fileList.length });
 
+    // Default to first model if not specified, or 'hybrid_deberta' as fallback
+    const selectedModel = modelName || (models.length > 0 ? models[0] : "hybrid_deberta");
+
     const newResults = [];
 
     try {
       for (const file of fileList) {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("model_name", selectedModel);
 
         try {
-          // Hitting the specific endpoint
-          const data = await apiClient.post("/predict/cha", formData);
+          // New generic point
+          const data = await apiClient.post("/predict", formData);
 
-          // Start artificial delay concurrently with next request processing if desired, 
-          // but for now keeping it sequential to match original feel or prevent race conditions if strict ordering needed.
-          // Adjusting logic: The original had an artificial delay. 
-          // We'll keep a small delay per file for UX "processing" feel, or just one at the end?
-          // Let's keep it simple: processed one by one.
+          // Artificial delay for UX
+          await new Promise(resolve => setTimeout(resolve, 500));
 
-          await new Promise(resolve => setTimeout(resolve, 500)); // slightly reduced delay per file
+          // Normalize Result Data
+          // model_v2 returns: { prediction: "Dementia", probability_dementia: 0.78, ... }
+          // hybrid_deberta returns: { prediction: "DEMENTIA", is_dementia: true, confidence: 0.85 ... }
 
-          // Attach filename to result if not already present, though backend likely returns it
-          // data.filename should be there from previous analysis.
+          let normalizedResult = { ...data };
 
-          newResults.push(data);
-          // Set results incrementally if we want dynamic updates, but setting at end is safer for now
+          if (!normalizedResult.hasOwnProperty('is_dementia')) {
+            if (normalizedResult.prediction) {
+              const predString = normalizedResult.prediction.toLowerCase();
+              normalizedResult.is_dementia = predString.includes('dementia');
+            }
+          }
+
+          if (!normalizedResult.hasOwnProperty('confidence')) {
+            // Map probability_dementia to confidence
+            if (normalizedResult.probability_dementia !== undefined) {
+              // If dementia, confidence is prob_dementia. If healthy, confidence is 1 - prob_dementia? 
+              // Or just use the probability of the predicted class?
+              // Usually confidence implies "confidence in the prediction".
+              // If prob_dementia = 0.9 -> Prediction=Dementia, Confidence=0.9
+              // If prob_dementia = 0.1 -> Prediction=Control, Confidence=0.9 (1-0.1)
+
+              const p = normalizedResult.probability_dementia;
+              normalizedResult.confidence = normalizedResult.is_dementia ? p : (1 - p);
+            }
+          }
+
+          newResults.push(normalizedResult);
         } catch (fileErr) {
           console.error(`Error processing file ${file.name}:`, fileErr);
-          // Optionally push an error object to results so we know this file failed
           newResults.push({
             error: true,
             filename: file.name,
@@ -65,7 +103,7 @@ export const PredictionProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [models]);
 
   const resetPrediction = () => {
     setResults([]);
@@ -75,7 +113,15 @@ export const PredictionProvider = ({ children }) => {
 
   return (
     <PredictionContext.Provider
-      value={{ results, loading, error, progress, predictDementia, resetPrediction }}
+      value={{
+        results,
+        loading,
+        error,
+        progress,
+        models,
+        predictDementia,
+        resetPrediction
+      }}
     >
       {children}
     </PredictionContext.Provider>
