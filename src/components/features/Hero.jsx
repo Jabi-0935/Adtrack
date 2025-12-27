@@ -1,7 +1,9 @@
 import FileUpload from "./FileUpload";
 import { BrainCircuit, Activity, Stethoscope, FileText } from "lucide-react";
+import { useConfig } from "../../context/ConfigContext";
 
 export default function Hero() {
+  const { config } = useConfig();
   return (
     <div className="relative flex flex-col items-center justify-center  py-4 md:py-12 px-4 sm:px-6 z-0">
 
@@ -35,13 +37,15 @@ export default function Hero() {
                 <p className="text-xs text-slate-500">Transformer Model</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
-              <div className="p-3 bg-teal-50 rounded-lg text-teal-600"><Activity size={24} /></div>
-              <div className="text-left">
-                <p className="font-bold text-slate-900">81.1%</p>
-                <p className="text-xs text-slate-500">Validation Accuracy</p>
+            {config.featureShowAccuracy && (
+              <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
+                <div className="p-3 bg-teal-50 rounded-lg text-teal-600"><Activity size={24} /></div>
+                <div className="text-left">
+                  <p className="font-bold text-slate-900">{config.accuracyValue || "81.1%"}</p>
+                  <p className="text-xs text-slate-500">Validation Accuracy</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

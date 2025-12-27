@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { UploadCloud, Loader2, FileText, AlertCircle, HardDrive, BrainCircuit, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePrediction } from "../../context/PredictionContext";
+import { useConfig } from "../../context/ConfigContext";
 import DisclaimerModal from "../ui/DisclaimerModal";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -13,11 +14,12 @@ function cn(...inputs) {
 
 export default function FileUpload() {
   const { predictDementia, loading, error, progress, models } = usePrediction();
+  const { config } = useConfig();
   const [selectedModel, setSelectedModel] = useState("");
   const [stagedFiles, setStagedFiles] = useState([]);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
-  // Set default model when models are loaded
+  // Set default model when models are loaded or config changes
   useEffect(() => {
     if (models.length > 0 && !selectedModel) {
       setSelectedModel(models[0]);
@@ -26,10 +28,12 @@ export default function FileUpload() {
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles?.length > 0) {
-      setStagedFiles(acceptedFiles);
+      // If multiple files disabled, take only the first one
+      const filesToStage = config.featureMultipleFiles ? acceptedFiles : [acceptedFiles[0]];
+      setStagedFiles(filesToStage);
       setShowDisclaimer(true);
     }
-  }, []);
+  }, [config.featureMultipleFiles]);
 
   const handleConfirmUpload = () => {
     if (stagedFiles.length > 0) {
@@ -47,7 +51,7 @@ export default function FileUpload() {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     onDrop,
     accept: { 'text/plain': ['.cha'] },
-    multiple: true,
+    multiple: config.featureMultipleFiles,
     disabled: loading
   });
 
@@ -67,35 +71,37 @@ export default function FileUpload() {
           ))}
         </div>
 
-        {/* Model Confirmation in Modal as well? Or just rely on the main selector? 
-            Let's show what model will be used. */}
-        <div className="text-xs text-slate-400 mt-2 flex items-center gap-1">
-          <BrainCircuit size={12} /> Analysis Protocol: <span className="font-medium text-slate-600">{selectedModel}</span>
-        </div>
+        {config.featureModelSelection && (
+          <div className="text-xs text-slate-400 mt-2 flex items-center gap-1">
+            <BrainCircuit size={12} /> Analysis Protocol: <span className="font-medium text-slate-600">{selectedModel}</span>
+          </div>
+        )}
       </DisclaimerModal>
 
       <div className="w-full bg-white rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
 
-        {/* Model Selection Header */}
-        <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <Activity size={16} className="text-blue-500" />
-            <span>Analysis Model</span>
+        {/* Model Selection Header - Conditional */}
+        {config.featureModelSelection && (
+          <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <Activity size={16} className="text-blue-500" />
+              <span>Analysis Model</span>
+            </div>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              disabled={loading}
+              className="text-sm bg-white border border-slate-200 text-slate-700 py-1.5 px-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none cursor-pointer hover:border-blue-300 transition-colors"
+            >
+              {models.length === 0 && <option>Loading models...</option>}
+              {models.map(m => (
+                <option key={m} value={m}>
+                  {m.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-            disabled={loading}
-            className="text-sm bg-white border border-slate-200 text-slate-700 py-1.5 px-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none cursor-pointer hover:border-blue-300 transition-colors"
-          >
-            {models.length === 0 && <option>Loading models...</option>}
-            {models.map(m => (
-              <option key={m} value={m}>
-                {m.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </option>
-            ))}
-          </select>
-        </div>
+        )}
 
         <div className="p-1">
           <div
@@ -147,12 +153,12 @@ export default function FileUpload() {
                   </div>
                 ) : (
                   <p className="text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
-                    Drag & drop your .CHA files here to begin analysis
+                    Drag & drop your .CHA {config.featureMultipleFiles ? "files" : "file"} here to begin analysis
                   </p>
                 )}
               </div>
 
-              {!loading && (
+              {!loading && config.featureMultipleFiles && (
                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-xs font-medium">
                   <FileText size={14} />
                   <span>Supports multiple .cha files</span>

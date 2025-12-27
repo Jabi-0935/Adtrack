@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Activity, FileText, ChevronRight, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useConfig } from "../../context/ConfigContext";
 
 export default function ResultsOverview({ results, onViewDetail, onReset }) {
+    const { config } = useConfig();
     // Calculate summary stats
     const totalFiles = results.length;
     const diseasedCount = results.filter(r => r.is_dementia).length;
@@ -88,8 +90,13 @@ export default function ResultsOverview({ results, onViewDetail, onReset }) {
                                             <span className={`font-medium ${isDementia ? 'text-red-700' : 'text-emerald-700'}`}>
                                                 {result.prediction}
                                             </span>
-                                            <span className="text-slate-300">|</span>
-                                            <span className="text-slate-500">Confidence: {confidencePercent}%</span>
+                                            {config.featureShowConfidence && (
+                                                <>
+                                                    <span className="text-slate-300">|</span>
+                                                    <span className="text-slate-500">Confidence: {confidencePercent}%</span>
+                                                </>
+                                            )}
+
                                             <span className="text-slate-300">|</span>
                                             <span className="text-slate-400 text-xs uppercase tracking-wide bg-slate-100 px-2 py-0.5 rounded-full">{result.model_used || "Hybrid DeBERTa"}</span>
                                             {result.error && (

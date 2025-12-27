@@ -1,10 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { PredictionProvider } from "./context/PredictionContext";
+import { ConfigProvider } from "./context/ConfigContext";
 import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import Methodology from "./pages/Methodology";
 import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,7 @@ const router = createBrowserRouter([
       { path: "/about", element: <Methodology /> },
       { path: "/methodology", element: <Methodology /> },
       { path: "/resources", element: <Resources /> },
+      { path: "/admin", element: <Admin /> },
       { path: "*", element: <NotFound /> },
     ],
   },
@@ -21,9 +24,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <PredictionProvider>
-      <RouterProvider router={router} />
-    </PredictionProvider>
+    <ConfigProvider>
+      <PredictionProvider>
+        <RouterProvider router={router} />
+      </PredictionProvider>
+    </ConfigProvider>
   );
 }
 
