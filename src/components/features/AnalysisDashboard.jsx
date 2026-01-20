@@ -62,6 +62,9 @@ export default function AnalysisDashboard({ result, onReset }) {
         </div>
       </div>
 
+
+      {/* Removed is_pending block */}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
         <div className="lg:col-span-4 space-y-6 flex flex-col h-full">
 
@@ -120,17 +123,32 @@ export default function AnalysisDashboard({ result, onReset }) {
                 ? "Key indicators may include reduced lexical diversity, simplified syntactic structures, and specific disfluency markers detected by the AI protocol."
                 : "The transcript demonstrates patterns typical of healthy controls, such as normal fluency and syntactic complexity."}
             </p>
+            {result.modalities_used && (
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Modalities Used</h4>
+                <div className="flex gap-2">
+                  {result.modalities_used.map(m => (
+                    <span key={m} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md capitalize">
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="lg:col-span-8 h-full min-h-[600px] lg:min-h-0">
           {hasAttentionMap ? (
             <HeatmapViewer attentionMap={result.attention_map} isDementia={isDementia} />
-          ) : hasLinguisticFeatures ? (
+          ) : (hasLinguisticFeatures || result.analysis?.linguistic_metrics || result.generated_transcript) ? (
             <LinguisticFeaturesView
-              features={result.linguistic_features}
-              keySegments={result.key_segments}
+              features={result.linguistic_features || result.analysis?.linguistic_metrics || {}}
+              keySegments={result.key_segments || []}
               isDementia={isDementia}
+              generatedTranscript={result.generated_transcript}
+              spectrogramBase64={result.spectrogram_base64}
+              modalityContributions={result.modality_contributions}
             />
           ) : (
             <div className="h-full flex items-center justify-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400">

@@ -81,24 +81,34 @@ export default function ResultsOverview({ results, onViewDetail, onReset }) {
                         >
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-xl border ${isDementia ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
-                                        {isDementia ? <AlertTriangle size={24} /> : <CheckCircle2 size={24} />}
+                                    <div className={`p-3 rounded-xl border ${result.is_pending ? 'bg-amber-50 border-amber-100 text-amber-600' : isDementia ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
+                                        {result.is_pending ? <Activity size={24} /> : isDementia ? <AlertTriangle size={24} /> : <CheckCircle2 size={24} />}
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-slate-800 text-lg">{result.filename || `Transcript ${index + 1}`}</h3>
                                         <div className="flex items-center gap-3 text-sm mt-0.5">
-                                            <span className={`font-medium ${isDementia ? 'text-red-700' : 'text-emerald-700'}`}>
-                                                {result.prediction}
-                                            </span>
-                                            {config.featureShowConfidence && (
+                                            {result.is_pending ? (
+                                                <span className="font-medium text-amber-700">Feature In Development</span>
+                                            ) : (
+                                                <span className={`font-medium ${isDementia ? 'text-red-700' : 'text-emerald-700'}`}>
+                                                    {result.prediction}
+                                                </span>
+                                            )}
+
+                                            {!result.is_pending && config.featureShowConfidence && (
                                                 <>
                                                     <span className="text-slate-300">|</span>
                                                     <span className="text-slate-500">Confidence: {confidencePercent}%</span>
                                                 </>
                                             )}
 
-                                            <span className="text-slate-300">|</span>
-                                            <span className="text-slate-400 text-xs uppercase tracking-wide bg-slate-100 px-2 py-0.5 rounded-full">{result.model_used || "Hybrid DeBERTa"}</span>
+                                            {!result.is_pending && (
+                                                <>
+                                                    <span className="text-slate-300">|</span>
+                                                    <span className="text-slate-400 text-xs uppercase tracking-wide bg-slate-100 px-2 py-0.5 rounded-full">{result.model_used || "Hybrid DeBERTa"}</span>
+                                                </>
+                                            )}
+
                                             {result.error && (
                                                 <span className="text-red-500 font-bold ml-2">- Analysis Failed</span>
                                             )}
