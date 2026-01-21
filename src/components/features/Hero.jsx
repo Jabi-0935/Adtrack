@@ -15,7 +15,7 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
             </span>
-            RESEARCH GRADE PROTOCOL v2.1
+            RESEARCH GRADE PROTOCOL v3.0 (Multimodal)
           </div>
 
           <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.05]">
@@ -26,23 +26,23 @@ export default function Hero() {
           </h1>
 
           <p className="text-xl text-slate-600 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
-            Advanced AI screening tool analyzing <span className="text-slate-900 font-semibold underline decoration-indigo-200 decoration-2">linguistic biomarkers</span> from speech transcripts to identify early signs of dementia with high precision.
+            Advanced AI screening tool analyzing <span className="text-slate-900 font-semibold underline decoration-indigo-200 decoration-2">linguistic & acoustic biomarkers</span> from speech to identify signs of dementia with high precision.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 pt-4">
             <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
               <div className="p-3 bg-indigo-50 rounded-lg text-indigo-600"><BrainCircuit size={24} /></div>
               <div className="text-left">
-                <p className="font-bold text-slate-900">DeBERTa</p>
-                <p className="text-xs text-slate-500">Transformer Model</p>
+                <p className="font-bold text-slate-900">Multimodal</p>
+                <p className="text-xs text-slate-500">Text + Audio + Features</p>
               </div>
             </div>
             {config.featureShowAccuracy && (
               <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 w-full max-w-xs">
                 <div className="p-3 bg-teal-50 rounded-lg text-teal-600"><Activity size={24} /></div>
                 <div className="text-left">
-                  <p className="font-bold text-slate-900">{config.accuracyValue || "81.1%"}</p>
-                  <p className="text-xs text-slate-500">Validation Accuracy</p>
+                  <p className="font-bold text-slate-900">{config.accuracyValue || "87.0%"}</p>
+                  <p className="text-xs text-slate-500">Real-World Accuracy</p>
                 </div>
               </div>
             )}

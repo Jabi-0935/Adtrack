@@ -115,28 +115,25 @@ export default function Methodology() {
                                 <h2 className="text-2xl font-bold text-slate-900">1. Data Ingestion & Preprocessing</h2>
                             </div>
                             <p className="text-slate-600">
-                                We process standard <code>.CHA</code> clinical transcripts using a specialized <strong>Two-Pass Parsing Strategy</strong> to capture both global discourse patterns and local syntactic features.
+                                We combine data from the <strong>Pitt Corpus, ADReSS 2020, and ADReSSo 2021</strong>, implementing a strict age/gender binning strategy to ensure a <strong>1:1 ratio</strong> of AD to Control subjects.
                             </p>
                             <div className="grid sm:grid-cols-2 gap-4">
                                 <div className="p-5 border border-slate-200 rounded-xl bg-slate-50/50">
                                     <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-2">
-                                        <GitBranch size={18} className="text-blue-500" /> Pass 1: Global Stats
+                                        <GitBranch size={18} className="text-blue-500" /> Segmentation
                                     </h3>
                                     <p className="text-sm text-slate-600">
-                                        We scan the full patient session to calculate the <strong>Type-Token Ratio (TTR)</strong>, a global proxy for vocabulary richness and cognitive decline.
+                                        We use time-stamped CSVs to distinctively isolate <strong>"Participant"</strong> speech from "Investigator" speech, preventing data leakage in the audio branch.
                                     </p>
                                 </div>
                                 <div className="p-5 border border-slate-200 rounded-xl bg-slate-50/50">
                                     <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-2">
-                                        <Layers size={18} className="text-blue-500" /> Pass 2: Injection
+                                        <Layers size={18} className="text-blue-500" /> Augmentation
                                     </h3>
                                     <p className="text-sm text-slate-600">
-                                        Sentences are cleaned for BERT while <strong>explicitly preserving fillers</strong> (&-um, &-uh) and tokenizing pauses ([PAUSE]) as critical markers.
+                                        To maximize robust training, we employ <strong>SpecAugment</strong> (Time/Freq masking) for audio and <strong>EDA</strong> (Synonym replacement) for text.
                                     </p>
                                 </div>
-                            </div>
-                            <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono">
-                                Extracting: Fillers, Repetitions [/+], Retracing [//], Errors [*], Pauses
                             </div>
                         </section>
 
@@ -146,10 +143,10 @@ export default function Methodology() {
                                 <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
                                     <BrainCircuit size={20} />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-900">2. Hybrid Neural Architecture</h2>
+                                <h2 className="text-2xl font-bold text-slate-900">2. Tri-Branch Fusion Architecture</h2>
                             </div>
                             <p className="text-slate-600">
-                                The core model is a <strong>ResearchHybridModel</strong> that fuses deep contextual embeddings with explicit linguistic vectors via a learnable gate.
+                                The system mimics a clinician's diagnostic process by fusing three distinct modalities via a <strong>Late Fusion</strong> strategy into a 144-dimensional vector.
                             </p>
 
                             <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl overflow-hidden">
@@ -158,9 +155,9 @@ export default function Methodology() {
                                     <div className="md:hidden absolute top-4 bottom-4 left-1/2 w-0.5 bg-slate-700 -z-0"></div>
 
                                     <div className="relative z-10 bg-slate-800 p-4 rounded-xl border border-slate-700 w-full md:w-1/3 text-center">
-                                        <div className="text-indigo-400 font-bold mb-1">DeBERTa Base</div>
-                                        <div className="text-xs text-slate-400">Layers 0-5 Frozen</div>
-                                        <div className="text-xs text-slate-400">Layers 6-11 Fine-Tuned</div>
+                                        <div className="text-indigo-400 font-bold mb-1">Semantic Branch</div>
+                                        <div className="text-xs text-slate-400">DeBERTa v3 + BiLSTM</div>
+                                        <div className="text-xs text-slate-400">Captures Narrative Flow</div>
                                     </div>
 
                                     <div className="relative z-10 bg-slate-900 p-1 rounded-full text-slate-500">
@@ -168,9 +165,9 @@ export default function Methodology() {
                                     </div>
 
                                     <div className="relative z-10 bg-slate-800 p-4 rounded-xl border border-slate-700 w-full md:w-1/3 text-center">
-                                        <div className="text-purple-400 font-bold mb-1">Gated Fusion</div>
-                                        <div className="text-xs text-slate-400">Sigmoid Gate</div>
-                                        <div className="text-xs text-slate-400">z * Txt + (1-z) * Feat</div>
+                                        <div className="text-purple-400 font-bold mb-1">Acoustic Branch</div>
+                                        <div className="text-xs text-slate-400">ViT-base-patch16</div>
+                                        <div className="text-xs text-slate-400">Mel-Spectrogram Analysis</div>
                                     </div>
 
                                     <div className="relative z-10 bg-slate-900 p-1 rounded-full text-slate-500">
@@ -178,9 +175,9 @@ export default function Methodology() {
                                     </div>
 
                                     <div className="relative z-10 bg-slate-800 p-4 rounded-xl border border-slate-700 w-full md:w-1/3 text-center">
-                                        <div className="text-teal-400 font-bold mb-1">BiLSTM + Attn</div>
-                                        <div className="text-xs text-slate-400">Temporal Context</div>
-                                        <div className="text-xs text-slate-400">Explainable Weights</div>
+                                        <div className="text-teal-400 font-bold mb-1">Linguistic Branch</div>
+                                        <div className="text-xs text-slate-400">MLP (Dense Network)</div>
+                                        <div className="text-xs text-slate-400">Explicit Clinical Markers</div>
                                     </div>
                                 </div>
                             </div>
@@ -196,18 +193,15 @@ export default function Methodology() {
                             </div>
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-3">
-                                    <h4 className="font-bold text-slate-800">Recall-Dependent Thresholding</h4>
+                                    <h4 className="font-bold text-slate-800">Real-World ASR</h4>
                                     <p className="text-sm text-slate-600">
-                                        Medical screening requires high sensitivity. Based on validation curves, we set the decision threshold to <strong>0.15 - 0.20</strong>.
+                                        Even without manual transcription, our model maintains <strong>87% accuracy</strong> using OpenAI Whisper generated transcripts, proving viability for automated screening.
                                     </p>
-                                    <div className="inline-block px-4 py-2 bg-emerald-50 text-emerald-700 font-bold rounded-lg border border-emerald-100">
-                                        Operating Point: 0.15
-                                    </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <h4 className="font-bold text-slate-800">Attention Maps</h4>
+                                    <h4 className="font-bold text-slate-800">Explainable AI</h4>
                                     <p className="text-sm text-slate-600">
-                                        We intercept the attention layer weights to visualize exactly which sentences triggered the dementia classification, providing "Explainable AI" for clinicians.
+                                        Each prediction is backed by detailed visualizations: modality contributions, probability distributions, and key segment highlighting for clinician review.
                                     </p>
                                 </div>
                             </div>
@@ -225,52 +219,38 @@ export default function Methodology() {
                             {/* Key Metrics */}
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="p-4 border border-slate-200 rounded-xl text-center bg-white shadow-sm">
-                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Test AUC</div>
-                                    <div className="text-3xl font-black text-slate-900 mt-1">0.874</div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">ASR Accuracy</div>
+                                    <div className="text-3xl font-black text-slate-900 mt-1">87.0%</div>
                                 </div>
                                 <div className="p-4 border border-slate-200 rounded-xl text-center bg-white shadow-sm">
-                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Accuracy</div>
-                                    <div className="text-3xl font-black text-slate-900 mt-1">81.1%</div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Deployment</div>
+                                    <div className="text-3xl font-black text-slate-900 mt-1">Ready</div>
                                 </div>
                                 <div className="p-4 border border-slate-200 rounded-xl text-center bg-white shadow-sm">
-                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sensitivity</div>
-                                    <div className="text-3xl font-black text-slate-900 mt-1">83.9%</div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Latency</div>
+                                    <div className="text-3xl font-black text-slate-900 mt-1">&lt; 2s</div>
                                 </div>
                             </div>
 
                             {/* Detailed Table */}
                             <div className="border border-slate-200 rounded-xl overflow-hidden mt-6">
                                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 font-semibold text-slate-700">
-                                    Final Sensitivity Analysis (Test Set)
+                                    Ablation Study Analysis (Held-Out Test Set)
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm text-left">
                                         <thead className="bg-white text-slate-500 font-semibold border-b border-slate-100">
                                             <tr>
-                                                <th className="px-6 py-3 whitespace-nowrap">Threshold</th>
-                                                <th className="px-6 py-3 whitespace-nowrap">Sensitivity</th>
-                                                <th className="px-6 py-3 whitespace-nowrap">Specificity</th>
+                                                <th className="px-6 py-3 whitespace-nowrap">Experiment</th>
                                                 <th className="px-6 py-3 whitespace-nowrap">Accuracy</th>
+                                                <th className="px-6 py-3 whitespace-nowrap">Insight</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 bg-white">
                                             <tr className="bg-emerald-50/50">
-                                                <td className="px-6 py-3 font-mono font-bold text-emerald-700">0.15 (Rec.)</td>
-                                                <td className="px-6 py-3 font-bold text-emerald-700">85.5%</td>
-                                                <td className="px-6 py-3">67.4%</td>
-                                                <td className="px-6 py-3">77.5%</td>
-                                            </tr>
-                                            <tr className="">
-                                                <td className="px-6 py-3 font-mono font-medium text-slate-600">0.20</td>
-                                                <td className="px-6 py-3 font-bold text-emerald-600">83.9%</td>
-                                                <td className="px-6 py-3">77.6%</td>
-                                                <td className="px-6 py-3 font-bold text-slate-900">81.1%</td>
-                                            </tr>
-                                            <tr>
-                                                <td className="px-6 py-3 font-mono text-slate-500">0.25</td>
-                                                <td className="px-6 py-3 font-bold text-emerald-600">80.7%</td>
-                                                <td className="px-6 py-3">79.6%</td>
-                                                <td className="px-6 py-3">80.2%</td>
+                                                <td className="px-6 py-3 font-mono font-bold text-emerald-700">Real-World ASR</td>
+                                                <td className="px-6 py-3 font-bold text-emerald-700">87.04%</td>
+                                                <td className="px-6 py-3">Clinically viable even with automated transcripts.</td>
                                             </tr>
                                         </tbody>
                                     </table>

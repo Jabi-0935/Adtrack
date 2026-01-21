@@ -6,13 +6,13 @@ export const ConfigProvider = ({ children }) => {
     // Load from local storage or default true
     const [config, setConfig] = useState(() => {
         try {
-            const saved = localStorage.getItem("adtrack_config");
+            const saved = localStorage.getItem("adtrack_config_v3_multimodal");
             return saved ? JSON.parse(saved) : {
                 featureMultipleFiles: true,
                 featureModelSelection: true,
                 featureShowConfidence: true,
                 featureShowAccuracy: true,
-                accuracyValue: "81.1%"
+                accuracyValue: "87.0%"
             };
         } catch {
             return {
@@ -20,13 +20,13 @@ export const ConfigProvider = ({ children }) => {
                 featureModelSelection: true,
                 featureShowConfidence: true,
                 featureShowAccuracy: true,
-                accuracyValue: "81.1%"
+                accuracyValue: "87.0%"
             };
         }
     });
 
     useEffect(() => {
-        localStorage.setItem("adtrack_config", JSON.stringify(config));
+        localStorage.setItem("adtrack_config_v3_multimodal", JSON.stringify(config));
     }, [config]);
 
     const toggleFeature = (key) => {

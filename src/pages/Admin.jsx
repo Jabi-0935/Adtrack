@@ -150,7 +150,7 @@ export default function Admin() {
                                         type="text"
                                         value={config.accuracyValue || ""}
                                         onChange={(e) => updateConfig('accuracyValue', e.target.value)}
-                                        placeholder="e.g. 81.1%"
+                                        placeholder="e.g. 87.0%"
                                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                     />
                                     <p className="text-xs text-slate-400 mt-2">Enter the value to be displayed on the validation badge.</p>
