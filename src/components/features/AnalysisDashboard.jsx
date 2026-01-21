@@ -87,30 +87,73 @@ export default function AnalysisDashboard({ result, onReset }) {
             </div>
 
             {config.featureShowConfidence && (
-              <div className="h-40 w-full relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data}
-                      innerRadius={50}
-                      outerRadius={70}
-                      paddingAngle={2}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      <Cell key="cell-0" fill={primaryColor} />
-                      <Cell key="cell-1" fill={secondaryColor} />
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#1e293b' }}
-                      itemStyle={{ color: '#1e293b' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl font-extrabold text-slate-800">{confidencePercent}%</span>
-                </div>
-              </div>
+              <>
+                {/* V3 Probability Bars - show when probabilities data is available */}
+                {result.probabilities && (
+                  <div className="mb-4 space-y-3">
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-red-600 font-medium">Alzheimer's (AD)</span>
+                        <span className="text-slate-600 font-semibold">
+                          {(result.probabilities.AD * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${result.probabilities.AD * 100}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-emerald-600 font-medium">Healthy Control</span>
+                        <span className="text-slate-600 font-semibold">
+                          {(result.probabilities.Control * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${result.probabilities.Control * 100}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+                          className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pie chart - show when no V3 probabilities available */}
+                {!result.probabilities && (
+                  <div className="h-40 w-full relative">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={data}
+                          innerRadius={50}
+                          outerRadius={70}
+                          paddingAngle={2}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          <Cell key="cell-0" fill={primaryColor} />
+                          <Cell key="cell-1" fill={secondaryColor} />
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#1e293b' }}
+                          itemStyle={{ color: '#1e293b' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-3xl font-extrabold text-slate-800">{confidencePercent}%</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -141,10 +184,11 @@ export default function AnalysisDashboard({ result, onReset }) {
         <div className="lg:col-span-8 h-full min-h-[600px] lg:min-h-0">
           {hasAttentionMap ? (
             <HeatmapViewer attentionMap={result.attention_map} isDementia={isDementia} />
-          ) : (hasLinguisticFeatures || result.analysis?.linguistic_metrics || result.generated_transcript) ? (
+          ) : (hasLinguisticFeatures || result.analysis?.linguistic_metrics || result.generated_transcript || result.spectrogram_base64 || result.modality_contributions || (result.key_segments && result.key_segments.length > 0)) ? (
             <LinguisticFeaturesView
               features={result.linguistic_features || result.analysis?.linguistic_metrics || {}}
               keySegments={result.key_segments || []}
+              keySegmentsNote={result.key_segments_note}
               isDementia={isDementia}
               generatedTranscript={result.generated_transcript}
               spectrogramBase64={result.spectrogram_base64}

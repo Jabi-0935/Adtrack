@@ -39,7 +39,7 @@ export const PredictionProvider = ({ children }) => {
     fetchModels();
   }, []);
 
-  const predictDementia = useCallback(async (files, modelName, audioFile = null) => {
+  const predictDementia = useCallback(async (files, modelName, audioFile = null, segmentationFile = null) => {
     setLoading(true);
     setError(null);
     setResults([]); // Clear previous results
@@ -57,11 +57,16 @@ export const PredictionProvider = ({ children }) => {
     const newResults = [];
 
     try {
-      // Audio-only mode (Model V3 ASR)
+      // Audio-only mode (Model V3 ASR or Audio + Segmentation)
       if (fileList.length === 0 && audioFile) {
         const formData = new FormData();
         formData.append("model_name", selectedModel);
         formData.append("audio_file", audioFile);
+
+        // Attach segmentation file if provided (for Audio + Segmentation mode)
+        if (segmentationFile) {
+          formData.append("segmentation_file", segmentationFile);
+        }
 
         try {
           const data = await apiClient.post("/predict", formData);
@@ -163,9 +168,22 @@ export const PredictionProvider = ({ children }) => {
       if (viz.linguistic_features && !normalizedResult.linguistic_features) {
         normalizedResult.linguistic_features = viz.linguistic_features;
       }
-      // Extract key segments (V3 nests these under visualizations)
-      if (viz.key_segments && !normalizedResult.key_segments) {
-        normalizedResult.key_segments = viz.key_segments;
+      // Extract key segments - handle both old format (key_segments) and new V3 format (key_contribution_segments)
+      if (!normalizedResult.key_segments) {
+        if (viz.key_segments) {
+          normalizedResult.key_segments = viz.key_segments;
+        } else if (viz.key_contribution_segments?.segments) {
+          // New V3 format: convert contribution_score to importance for component compatibility
+          normalizedResult.key_segments = viz.key_contribution_segments.segments.map(seg => ({
+            text: seg.text,
+            importance: seg.contribution_score,
+            contribution_score: seg.contribution_score // keep original for reference
+          }));
+          // Store the note if present
+          if (viz.key_contribution_segments.note) {
+            normalizedResult.key_segments_note = viz.key_contribution_segments.note;
+          }
+        }
       }
       // Extract new V3-specific visualization data
       if (viz.modality_contributions) {

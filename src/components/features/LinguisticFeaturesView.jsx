@@ -6,6 +6,7 @@ import { Quote, Activity, ChevronDown, ChevronUp, Mic, AudioWaveform, Layers } f
 export default function LinguisticFeaturesView({
     features,
     keySegments,
+    keySegmentsNote,
     isDementia,
     generatedTranscript,
     spectrogramBase64,
@@ -40,8 +41,11 @@ export default function LinguisticFeaturesView({
 
     const barColor = isDementia ? "#ef4444" : "#10b981";
 
-    // Helper to get segment importance - handles both V2 (importance) and V3 (marker_count)
+    // Helper to get segment importance - handles V2 (importance), V3 old (marker_count), and V3 new (contribution_score)
     const getSegmentImportance = (seg) => {
+        if (seg.contribution_score !== undefined) {
+            return seg.contribution_score;
+        }
         if (seg.importance !== undefined) {
             return seg.importance;
         }
@@ -53,6 +57,9 @@ export default function LinguisticFeaturesView({
     };
 
     const getSegmentLabel = (seg) => {
+        if (seg.contribution_score !== undefined) {
+            return `Contribution: ${(seg.contribution_score * 100).toFixed(0)}%`;
+        }
         if (seg.importance !== undefined) {
             return `Impact Score: ${seg.importance}`;
         }
@@ -232,7 +239,10 @@ export default function LinguisticFeaturesView({
                 {/* Key Segments */}
                 {keySegments && keySegments.length > 0 && (
                     <div>
-                        <h4 className="text-sm font-bold text-slate-800 mb-4 px-2">Key Contributing Segments</h4>
+                        <h4 className="text-sm font-bold text-slate-800 mb-2 px-2">Key Contributing Segments</h4>
+                        {keySegmentsNote && (
+                            <p className="text-xs text-slate-500 mb-4 px-2 italic">{keySegmentsNote}</p>
+                        )}
                         <div className="space-y-3">
                             {keySegments.map((seg, i) => (
                                 <motion.div
